@@ -22,6 +22,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Create env files
+        run: |
+          echo "BASE_URL=http://localhost:3000" > .env.development
+          echo "ENV=development" >> .env.development
+
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 
@@ -47,8 +52,13 @@ jobs:
 
       - name: Create .env.production
         run: |
-          echo "BASE_URL=${{ secrets.PROD_BASE_URL }}" >> .env.production
+          echo "BASE_URL=${{ secrets.PROD_BASE_URL }}" > .env.production
           echo "ENV=production" >> .env.production
+
+      - name: Create .env.development
+        run: |
+          echo "BASE_URL=http://localhost:3000" > .env.development
+          echo "ENV=development" >> .env.development
 
       - name: Build APK
         run: flutter build apk --release
