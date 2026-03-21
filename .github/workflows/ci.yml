@@ -13,19 +13,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: flutter-actions/setup-flutter@v3
         with:
-          flutter-version: 'stable'
-          channel: 'stable'
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
+          channel: stable
+          version: latest
 
       - name: Create env files
         run: |
           echo "BASE_URL=http://localhost:3000" > .env.development
           echo "ENV=development" >> .env.development
+          echo "BASE_URL=https://grabbit-1.onrender.com" > .env.production
+          echo "ENV=production" >> .env.production
+
+      - name: Install dependencies
+        run: flutter pub get
 
       - name: Analyze
         run: flutter analyze --no-fatal-infos
@@ -41,24 +43,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: flutter-actions/setup-flutter@v3
         with:
-          flutter-version: 'stable'
-          channel: 'stable'
-          cache: true
+          channel: stable
+          version: latest
 
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Create .env.production
+      - name: Create env files
         run: |
           echo "BASE_URL=${{ secrets.PROD_BASE_URL }}" > .env.production
           echo "ENV=production" >> .env.production
-
-      - name: Create .env.development
-        run: |
           echo "BASE_URL=http://localhost:3000" > .env.development
           echo "ENV=development" >> .env.development
+
+      - name: Install dependencies
+        run: flutter pub get
 
       - name: Build APK
         run: flutter build apk --release
