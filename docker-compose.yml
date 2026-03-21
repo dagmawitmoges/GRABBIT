@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  grabbit-build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    image: grabbit-flutter:latest
+    container_name: grabbit_build
+    volumes:
+      - ./build:/app/build
+    command: flutter build apk --release
