@@ -13,11 +13,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Flutter
-        uses: flutter-actions/setup-flutter@v3
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          channel: stable
-          version: latest
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+          channel: 'stable'
+          cache: true
 
       - name: Create env files
         run: |
@@ -43,11 +50,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Flutter
-        uses: flutter-actions/setup-flutter@v3
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          channel: stable
-          version: latest
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+          channel: 'stable'
+          cache: true
 
       - name: Create env files
         run: |
