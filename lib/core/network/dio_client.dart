@@ -1,8 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../config/env.dart';
 import '../constants/api_constants.dart';
 import '../storage/secure_storage.dart';
+
 class DioClient {
   static Dio? _instance;
 
@@ -19,7 +20,7 @@ class DioClient {
         receiveTimeout: const Duration(seconds: 15),
         headers: {
           'Content-Type': 'application/json',
-          'Accept':       'application/json',
+          'Accept': 'application/json',
         },
       ),
     );
@@ -31,7 +32,8 @@ class DioClient {
         LogInterceptor(
           requestBody: true,
           responseBody: true,
-        logPrint: (o) => debugPrint('[DIO] $o'),    ),
+          logPrint: (o) => debugPrint('[DIO] $o'),
+        ),
       );
     }
 
@@ -78,11 +80,11 @@ class _AuthInterceptor extends Interceptor {
           options: Options(headers: {'Authorization': null}),
         );
 
-        final newAccessToken  = response.data['accessToken']  as String;
+        final newAccessToken = response.data['accessToken'] as String;
         final newRefreshToken = response.data['refreshToken'] as String;
 
         await SecureStorage.saveTokens(
-          accessToken:  newAccessToken,
+          accessToken: newAccessToken,
           refreshToken: newRefreshToken,
         );
 
