@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import '../config/env.dart';
 import '../constants/api_constants.dart';
 import '../storage/secure_storage.dart';
-
+import 'package:flutter/foundation.dart';
 class DioClient {
   static Dio? _instance;
 
@@ -31,8 +31,7 @@ class DioClient {
         LogInterceptor(
           requestBody: true,
           responseBody: true,
-          logPrint: (o) => print('[DIO] $o'),
-        ),
+        logPrint: (o) => debugPrint('[DIO] $o'),        ),
       );
     }
 
