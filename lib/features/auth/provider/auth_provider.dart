@@ -1,30 +1,29 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/constants/api_constants.dart';
+import '../../../core/network/dio_client.dart';
 import '../../../core/storage/secure_storage.dart';
 import '../model/auth_models.dart';
 import '../model/subcity_model.dart';
 import '../service/auth_service.dart';
 
-// ── Service provider ─────────────────────────────────────────────────────────
-
 final authServiceProvider = Provider<AuthService>((ref) => AuthService());
-
-// ── Subcities provider ───────────────────────────────────────────────────────
 
 final subcitiesProvider = FutureProvider<List<Subcity>>((ref) async {
   return ref.read(authServiceProvider).getSubcities();
 });
 
-// ── Auth state ───────────────────────────────────────────────────────────────
-
 class AuthState {
   final AuthUser? user;
   final bool isLoading;
   final String? error;
+  final bool isInitialized;
 
   const AuthState({
     this.user,
     this.isLoading = false,
     this.error,
+    this.isInitialized = false,
   });
 
   bool get isAuthenticated => user != null;
@@ -33,6 +32,7 @@ class AuthState {
     AuthUser? user,
     bool? isLoading,
     String? error,
+    bool? isInitialized,
     bool clearUser = false,
     bool clearError = false,
   }) {
@@ -40,16 +40,35 @@ class AuthState {
       user: clearUser ? null : user ?? this.user,
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : error ?? this.error,
+      isInitialized: isInitialized ?? this.isInitialized,
     );
   }
 }
 
-// ── Auth notifier ─────────────────────────────────────────────────────────────
-
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthService _authService;
 
-  AuthNotifier(this._authService) : super(const AuthState());
+  AuthNotifier(this._authService) : super(const AuthState()) {
+    _restoreSession();
+  }
+
+  Future<void> _restoreSession() async {
+    final token = await SecureStorage.getAccessToken();
+    if (token == null) {
+      state = state.copyWith(isInitialized: true);
+      return;
+    }
+    try {
+      final response =
+          await DioClient.instance.get(ApiConstants.me);
+      final user = AuthUser.fromJson(
+          response.data as Map<String, dynamic>);
+      state = state.copyWith(user: user, isInitialized: true);
+    } on DioException catch (_) {
+      await SecureStorage.clearTokens();
+      state = state.copyWith(isInitialized: true);
+    }
+  }
 
   Future<bool> login(String email, String password) async {
     state = state.copyWith(isLoading: true, clearError: true);
@@ -61,7 +80,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,
       );
-      state = state.copyWith(user: response.user, isLoading: false);
+      state = state.copyWith(
+        user: response.user,
+        isLoading: false,
+        isInitialized: true,
+      );
       return true;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -113,7 +136,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   void logout() async {
     await SecureStorage.clearTokens();
-    state = const AuthState();
+    state = const AuthState(isInitialized: true);
   }
 
   void clearError() {

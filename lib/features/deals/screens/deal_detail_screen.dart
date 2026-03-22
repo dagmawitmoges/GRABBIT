@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/constants/app_theme.dart';
 import '../model/review_model.dart';
 import '../provider/deals_provider.dart';
 
@@ -14,16 +15,17 @@ class DealDetailScreen extends ConsumerWidget {
     final reviewsAsync = ref.watch(dealReviewsProvider(dealId));
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.background,
       body: dealAsync.when(
         loading: () => const Center(
-          child: CircularProgressIndicator(color: Color(0xFF1DB954)),
+          child: CircularProgressIndicator(color: AppTheme.primary),
         ),
         error: (err, _) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, color: Colors.red, size: 48),
+              const Icon(Icons.error_outline,
+                  color: Colors.red, size: 48),
               const SizedBox(height: 16),
               Text(err.toString()),
               const SizedBox(height: 16),
@@ -36,18 +38,27 @@ class DealDetailScreen extends ConsumerWidget {
         ),
         data: (deal) => CustomScrollView(
           slivers: [
-            // Image app bar
             SliverAppBar(
-              expandedHeight: 280,
+              expandedHeight: 300,
               pinned: true,
-              backgroundColor: Colors.white,
-              leading: IconButton(
-                icon: const CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child:
-                      Icon(Icons.arrow_back_ios, color: Colors.black, size: 16),
+              backgroundColor: AppTheme.primary,
+              leading: GestureDetector(
+                onTap: () => context.pop(),
+                child: Container(
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.arrow_back_ios_new,
+                      color: AppTheme.textDark, size: 18),
                 ),
-                onPressed: () => context.pop(),
               ),
               flexibleSpace: FlexibleSpaceBar(
                 background: deal.images.isNotEmpty
@@ -55,32 +66,41 @@ class DealDetailScreen extends ConsumerWidget {
                         deal.images.first,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.storefront_outlined,
-                              size: 80, color: Colors.grey),
+                          color: AppTheme.divider,
+                          child: const Icon(
+                              Icons.storefront_outlined,
+                              size: 80,
+                              color: AppTheme.textLight),
                         ),
                       )
                     : Container(
-                        color: Colors.grey[200],
+                        color: AppTheme.divider,
                         child: const Icon(Icons.storefront_outlined,
-                            size: 80, color: Colors.grey),
+                            size: 80, color: AppTheme.textLight),
                       ),
               ),
             ),
 
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: AppTheme.background,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(28),
+                    topRight: Radius.circular(28),
+                  ),
+                ),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Category & subcity
+                    // Tags
                     Row(
                       children: [
                         if (deal.categoryName != null)
                           _Tag(
                               label: deal.categoryName!,
-                              color: const Color(0xFF1DB954)),
+                              color: AppTheme.primary),
                         if (deal.subcityName != null) ...[
                           const SizedBox(width: 8),
                           _Tag(label: deal.subcityName!, color: Colors.blue),
@@ -93,126 +113,151 @@ class DealDetailScreen extends ConsumerWidget {
                     Text(
                       deal.title,
                       style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textDark,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
 
-                    // Price row
-                    Row(
-                      children: [
-                        Text(
-                          'ETB ${deal.discountedPrice.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1DB954),
+                    // Price card
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Discounted Price',
+                                style: TextStyle(
+                                    color: AppTheme.textLight,
+                                    fontSize: 12),
+                              ),
+                              Text(
+                                'ETB ${deal.discountedPrice.toStringAsFixed(0)}',
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.primary,
+                                ),
+                              ),
+                              Text(
+                                'ETB ${deal.originalPrice.toStringAsFixed(0)} original',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: AppTheme.textLight,
+                                  decoration:
+                                      TextDecoration.lineThrough,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'ETB ${deal.originalPrice.toStringAsFixed(0)}',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey[500],
-                            decoration: TextDecoration.lineThrough,
-                          ),
-                        ),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1DB954),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '${deal.discountPercentage.toStringAsFixed(0)}% OFF',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primary,
+                              borderRadius:
+                                  BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${deal.discountPercentage.toStringAsFixed(0)}% OFF',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+
                     const SizedBox(height: 16),
 
                     // Info row
                     Row(
                       children: [
-                        const Icon(Icons.inventory_2_outlined,
-                            size: 16, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${deal.availableQuantity} available',
-                          style: TextStyle(
-                            color: deal.availableQuantity < 5
-                                ? Colors.orange
-                                : Colors.grey[600],
-                            fontSize: 13,
-                          ),
+                        _InfoChip(
+                          icon: Icons.inventory_2_outlined,
+                          label:
+                              '${deal.availableQuantity} available',
+                          color: deal.availableQuantity < 5
+                              ? Colors.orange
+                              : AppTheme.primary,
                         ),
                         if (deal.expiryTime != null) ...[
-                          const SizedBox(width: 16),
-                          const Icon(Icons.access_time,
-                              size: 16, color: Colors.grey),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Expires ${_formatDate(deal.expiryTime!)}',
-                            style: TextStyle(
-                                color: Colors.grey[600], fontSize: 13),
+                          const SizedBox(width: 8),
+                          _InfoChip(
+                            icon: Icons.access_time,
+                            label:
+                                'Expires ${_formatDate(deal.expiryTime!)}',
+                            color: AppTheme.textMedium,
                           ),
                         ],
                       ],
                     ),
-                    const SizedBox(height: 20),
 
-                    // Description
                     if (deal.description != null) ...[
+                      const SizedBox(height: 24),
                       const Text(
                         'About this deal',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.textDark,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         deal.description!,
-                        style: TextStyle(color: Colors.grey[700], height: 1.5),
+                        style: const TextStyle(
+                          color: AppTheme.textMedium,
+                          height: 1.6,
+                          fontSize: 15,
+                        ),
                       ),
-                      const SizedBox(height: 20),
                     ],
 
-                    // Reviews section
+                    const SizedBox(height: 24),
+
                     const Text(
                       'Reviews',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textDark,
                       ),
                     ),
                     const SizedBox(height: 12),
 
                     reviewsAsync.when(
                       loading: () => const Center(
-                        child:
-                            CircularProgressIndicator(color: Color(0xFF1DB954)),
+                        child: CircularProgressIndicator(
+                            color: AppTheme.primary),
                       ),
                       error: (_, __) => const Text(
                         'Could not load reviews',
-                        style: TextStyle(color: Colors.grey),
+                        style:
+                            TextStyle(color: AppTheme.textLight),
                       ),
                       data: (reviews) => reviews.isEmpty
                           ? const Text(
                               'No reviews yet',
-                              style: TextStyle(color: Colors.grey),
+                              style: TextStyle(
+                                  color: AppTheme.textLight),
                             )
                           : Column(
                               children: reviews
-                                  .map((r) => _ReviewCard(review: r))
+                                  .map((r) =>
+                                      _ReviewCard(review: r))
                                   .toList(),
                             ),
                     ),
@@ -225,8 +270,6 @@ class DealDetailScreen extends ConsumerWidget {
           ],
         ),
       ),
-
-      // Reserve button
       bottomNavigationBar: dealAsync.maybeWhen(
         data: (deal) => Container(
           padding: const EdgeInsets.all(16),
@@ -245,16 +288,12 @@ class DealDetailScreen extends ConsumerWidget {
                 ? () => context.push('/orders/new', extra: deal)
                 : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1DB954),
-              foregroundColor: Colors.white,
-              minimumSize: const Size(double.infinity, 52),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              minimumSize: const Size(double.infinity, 56),
             ),
             child: Text(
-              deal.availableQuantity > 0 ? 'Reserve Now' : 'Out of Stock',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              deal.availableQuantity > 0
+                  ? 'Reserve Now'
+                  : 'Out of Stock',
             ),
           ),
         ),
@@ -281,15 +320,52 @@ class _Tag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding:
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         label,
-        style:
-            TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
+        style: TextStyle(
+            color: color,
+            fontSize: 12,
+            fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  const _InfoChip(
+      {required this.icon, required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding:
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w600),
+          ),
+        ],
       ),
     );
   }
@@ -303,11 +379,10 @@ class _ReviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey[200]!),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,14 +391,18 @@ class _ReviewCard extends StatelessWidget {
             children: [
               Text(
                 review.reviewerName ?? 'Anonymous',
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textDark),
               ),
               const Spacer(),
               Row(
                 children: List.generate(
                   5,
                   (i) => Icon(
-                    i < review.rating ? Icons.star : Icons.star_border,
+                    i < review.rating
+                        ? Icons.star
+                        : Icons.star_border,
                     size: 14,
                     color: Colors.amber,
                   ),
@@ -335,7 +414,8 @@ class _ReviewCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               review.comment!,
-              style: TextStyle(color: Colors.grey[700], fontSize: 13),
+              style: const TextStyle(
+                  color: AppTheme.textMedium, fontSize: 13),
             ),
           ],
         ],

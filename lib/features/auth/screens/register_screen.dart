@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/constants/app_theme.dart';
 import '../../../shared/widgets/error_banner.dart';
 import '../model/subcity_model.dart';
 import '../provider/auth_provider.dart';
@@ -40,7 +41,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       );
       return;
     }
-
     final email = await ref.read(authProvider.notifier).register(
           firstName: _firstNameController.text.trim(),
           lastName: _lastNameController.text.trim(),
@@ -51,7 +51,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ? null
               : _phoneController.text.trim(),
         );
-
     if (email != null && mounted) {
       context.push('/otp', extra: email);
     }
@@ -63,32 +62,35 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final subcitiesAsync = ref.watch(subcitiesProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 8),
                 const Text(
                   'Create Account',
                   style: TextStyle(
-                      fontSize: 26, fontWeight: FontWeight.bold),
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textDark,
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'Join Grabbit and start saving',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                const SizedBox(height: 8),
+                const Text(
+                  'Join Grabbit and start saving today',
+                  style: TextStyle(
+                      fontSize: 15, color: AppTheme.textMedium),
                 ),
                 const SizedBox(height: 32),
 
@@ -100,28 +102,28 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 // First Name
                 TextFormField(
                   controller: _firstNameController,
-                  decoration:
-                      _inputDecoration('First Name', Icons.person_outline),
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return 'First name is required';
-                    }
-                    return null;
-                  },
+                  decoration: const InputDecoration(
+                    labelText: 'First Name',
+                    prefixIcon: Icon(Icons.person_outline,
+                        color: AppTheme.textLight),
+                  ),
+                  validator: (val) => val == null || val.isEmpty
+                      ? 'First name is required'
+                      : null,
                 ),
                 const SizedBox(height: 16),
 
                 // Last Name
                 TextFormField(
                   controller: _lastNameController,
-                  decoration:
-                      _inputDecoration('Last Name', Icons.person_outline),
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return 'Last name is required';
-                    }
-                    return null;
-                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Last Name',
+                    prefixIcon: Icon(Icons.person_outline,
+                        color: AppTheme.textLight),
+                  ),
+                  validator: (val) => val == null || val.isEmpty
+                      ? 'Last name is required'
+                      : null,
                 ),
                 const SizedBox(height: 16),
 
@@ -129,8 +131,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration:
-                      _inputDecoration('Email', Icons.email_outlined),
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.email_outlined,
+                        color: AppTheme.textLight),
+                  ),
                   validator: (val) {
                     if (val == null || val.isEmpty) {
                       return 'Email is required';
@@ -141,21 +146,27 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Phone (optional)
+                // Phone
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  decoration: _inputDecoration(
-                      'Phone (optional)', Icons.phone_outlined),
+                  decoration: const InputDecoration(
+                    labelText: 'Phone (optional)',
+                    prefixIcon: Icon(Icons.phone_outlined,
+                        color: AppTheme.textLight),
+                  ),
                 ),
                 const SizedBox(height: 16),
 
-                // Subcity dropdown
+                // Subcity
                 subcitiesAsync.when(
                   data: (subcities) => DropdownButtonFormField<Subcity>(
-                 initialValue: _selectedSubcity,
-                    decoration:
-                        _inputDecoration('Subcity', Icons.location_on_outlined),
+                    initialValue: _selectedSubcity,
+                    decoration: const InputDecoration(
+                      labelText: 'Subcity',
+                      prefixIcon: Icon(Icons.location_on_outlined,
+                          color: AppTheme.textLight),
+                    ),
                     items: subcities
                         .map((s) => DropdownMenuItem(
                               value: s,
@@ -169,11 +180,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         : null,
                   ),
                   loading: () => const LinearProgressIndicator(
-                    color: Color(0xFF1DB954),
-                  ),
+                      color: AppTheme.primary),
                   error: (_, __) => const Text(
-                    'Failed to load subcities. Please try again.',
-                    style: TextStyle(color: Colors.red, fontSize: 13),
+                    'Failed to load subcities.',
+                    style: TextStyle(color: Colors.red),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -182,15 +192,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
-                  decoration: _inputDecoration(
-                          'Password', Icons.lock_outline)
-                      .copyWith(
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    prefixIcon: const Icon(Icons.lock_outline,
+                        color: AppTheme.textLight),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
-                        color: Colors.grey,
+                        color: AppTheme.textLight,
                       ),
                       onPressed: () => setState(
                           () => _obscurePassword = !_obscurePassword),
@@ -201,7 +212,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       return 'Password is required';
                     }
                     if (val.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return 'Minimum 6 characters';
                     }
                     return null;
                   },
@@ -210,30 +221,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                 SizedBox(
                   width: double.infinity,
-                  height: 52,
+                  height: 56,
                   child: ElevatedButton(
                     onPressed: authState.isLoading ? null : _onRegister,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1DB954),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
                     child: authState.isLoading
                         ? const SizedBox(
-                            width: 22,
-                            height: 22,
+                            width: 24,
+                            height: 24,
                             child: CircularProgressIndicator(
                               color: Colors.white,
                               strokeWidth: 2,
                             ),
                           )
-                        : const Text(
-                            'Create Account',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w600),
-                          ),
+                        : const Text('Create Account'),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -241,45 +241,28 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Already have an account? ',
-                      style: TextStyle(color: Colors.grey[600]),
+                      style: TextStyle(color: AppTheme.textMedium),
                     ),
                     GestureDetector(
                       onTap: () => context.pop(),
                       child: const Text(
                         'Sign In',
                         style: TextStyle(
-                          color: Color(0xFF1DB954),
-                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 32),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label, IconData icon) {
-    return InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon, color: Colors.grey),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey[300]!),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF1DB954)),
-      ),
-      filled: true,
-      fillColor: Colors.grey[50],
     );
   }
 }
