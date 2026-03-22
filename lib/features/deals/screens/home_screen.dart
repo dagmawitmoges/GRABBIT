@@ -59,13 +59,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icon: const Icon(Icons.person_outline, color: Colors.black),
             onPressed: () => context.push('/profile'),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.black),
-            onPressed: () {
-              ref.read(authProvider.notifier).logout();
-              context.go('/login');
-            },
-          ),
+          
         ],
       ),
       body: RefreshIndicator(
