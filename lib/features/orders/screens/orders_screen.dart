@@ -15,8 +15,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        ref.read(ordersProvider.notifier).fetchOrders());
+    Future.microtask(
+        () => ref.read(ordersProvider.notifier).fetchOrders());
   }
 
   @override
@@ -40,8 +40,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
       ),
       body: ordersState.isLoading
           ? const Center(
-              child: CircularProgressIndicator(
-                  color: Color(0xFF1DB954)),
+              child:
+                  CircularProgressIndicator(color: Color(0xFF1DB954)),
             )
           : ordersState.error != null
               ? Center(
@@ -83,16 +83,19 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                           const SizedBox(height: 8),
                           Text(
                             'Browse deals and place your first order',
-                            style: TextStyle(color: Colors.grey[600]),
+                            style:
+                                TextStyle(color: Colors.grey[600]),
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton(
                             onPressed: () => context.go('/home'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1DB954),
+                              backgroundColor:
+                                  const Color(0xFF1DB954),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius:
+                                    BorderRadius.circular(12),
                               ),
                             ),
                             child: const Text('Browse Deals'),
@@ -109,10 +112,12 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                         padding: const EdgeInsets.all(16),
                         itemCount: ordersState.orders.length,
                         itemBuilder: (context, index) {
+                          final order = ordersState.orders[index];
                           return _OrderCard(
-                            order: ordersState.orders[index],
+                            order: order,
                             onCancel: () async {
-                              final confirm = await showDialog<bool>(
+                              final confirm =
+                                  await showDialog<bool>(
                                 context: context,
                                 builder: (_) => AlertDialog(
                                   title: const Text('Cancel Order'),
@@ -121,12 +126,14 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                                   actions: [
                                     TextButton(
                                       onPressed: () =>
-                                          Navigator.pop(context, false),
+                                          Navigator.pop(
+                                              context, false),
                                       child: const Text('No'),
                                     ),
                                     TextButton(
                                       onPressed: () =>
-                                          Navigator.pop(context, true),
+                                          Navigator.pop(
+                                              context, true),
                                       child: const Text('Yes',
                                           style: TextStyle(
                                               color: Colors.red)),
@@ -134,13 +141,16 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                                   ],
                                 ),
                               );
-                              if (confirm == true) {
+                              if (confirm == true && context.mounted) {
                                 await ref
                                     .read(ordersProvider.notifier)
-                                    .cancelOrder(
-                                        ordersState.orders[index].id);
+                                    .cancelOrder(order.id);
                               }
                             },
+                            onReview: () => context.push(
+                              '/orders/${order.id}/review',
+                              extra: order.dealTitle ?? 'Deal',
+                            ),
                           );
                         },
                       ),
@@ -152,8 +162,13 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
 class _OrderCard extends StatelessWidget {
   final Order order;
   final VoidCallback onCancel;
+  final VoidCallback onReview;
 
-  const _OrderCard({required this.order, required this.onCancel});
+  const _OrderCard({
+    required this.order,
+    required this.onCancel,
+    required this.onReview,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -174,6 +189,7 @@ class _OrderCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Title + status
           Row(
             children: [
               Expanded(
@@ -189,7 +205,8 @@ class _OrderCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _statusColor(order.status).withOpacity(0.1),
+                  color:
+                      _statusColor(order.status).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -235,12 +252,13 @@ class _OrderCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
+          // Bottom row
           Row(
             children: [
               Text(
                 'Qty: ${order.quantity}',
-                style: TextStyle(
-                    color: Colors.grey[600], fontSize: 13),
+                style:
+                    TextStyle(color: Colors.grey[600], fontSize: 13),
               ),
               if (order.discountedPrice != null) ...[
                 const SizedBox(width: 16),
@@ -253,6 +271,15 @@ class _OrderCard extends StatelessWidget {
                 ),
               ],
               const Spacer(),
+              if (order.status == 'Completed')
+                TextButton(
+                  onPressed: onReview,
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF1DB954),
+                    padding: EdgeInsets.zero,
+                  ),
+                  child: const Text('Review'),
+                ),
               if (order.isCancellable)
                 TextButton(
                   onPressed: onCancel,

@@ -8,6 +8,7 @@ import '../features/deals/screens/home_screen.dart';
 import '../features/deals/screens/deal_detail_screen.dart';
 import '../features/orders/screens/orders_screen.dart';
 import '../features/orders/screens/place_order_screen.dart';
+import '../features/orders/screens/review_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/login',
@@ -41,13 +42,26 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/orders',
       builder: (_, __) => const OrdersScreen(),
-    ),
-    GoRoute(
-      path: '/orders/new',
-      builder: (context, state) {
-        final deal = state.extra as Deal;
-        return PlaceOrderScreen(deal: deal);
-      },
+      routes: [
+        GoRoute(
+          path: 'new',
+          builder: (context, state) {
+            final deal = state.extra as Deal;
+            return PlaceOrderScreen(deal: deal);
+          },
+        ),
+        GoRoute(
+          path: ':id/review',
+          builder: (context, state) {
+            final orderId = state.pathParameters['id']!;
+            final dealTitle = state.extra as String;
+            return ReviewScreen(
+              orderId: orderId,
+              dealTitle: dealTitle,
+            );
+          },
+        ),
+      ],
     ),
     GoRoute(
       path: '/profile',

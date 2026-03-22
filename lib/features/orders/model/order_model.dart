@@ -37,4 +37,4 @@ class Order {
 
   bool get isCancellable =>
       status != 'Cancelled' && status != 'Completed';
-} 
+}
