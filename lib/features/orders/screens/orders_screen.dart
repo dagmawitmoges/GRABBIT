@@ -16,8 +16,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-        () => ref.read(ordersProvider.notifier).fetchOrders());
+    Future.microtask(() => ref.read(ordersProvider.notifier).fetchOrders());
   }
 
   @override
@@ -117,8 +116,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                           return _OrderCard(
                             order: order,
                             onCancel: () async {
-                              final confirm =
-                                  await showDialog<bool>(
+                              final confirm = await showDialog<bool>(
                                 context: context,
                                 builder: (_) => AlertDialog(
                                   shape: RoundedRectangleBorder(
@@ -132,17 +130,14 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                                   actions: [
                                     TextButton(
                                       onPressed: () =>
-                                          Navigator.pop(
-                                              context, false),
+                                          Navigator.pop(context, false),
                                       child: const Text('No'),
                                     ),
                                     TextButton(
                                       onPressed: () =>
-                                          Navigator.pop(
-                                              context, true),
+                                          Navigator.pop(context, true),
                                       child: const Text('Yes',
-                                          style: TextStyle(
-                                              color: Colors.red)),
+                                          style: TextStyle(color: Colors.red)),
                                     ),
                                   ],
                                 ),
@@ -209,8 +204,8 @@ class _OrderCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: _statusColor(order.status)
                       .withValues(alpha: 0.1),

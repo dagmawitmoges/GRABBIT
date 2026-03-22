@@ -41,8 +41,7 @@ class _PlaceOrderScreenState extends ConsumerState<PlaceOrderScreen> {
               const SizedBox(height: 16),
               const Text(
                 'Order Placed!',
-                style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
@@ -51,10 +50,10 @@ class _PlaceOrderScreenState extends ConsumerState<PlaceOrderScreen> {
               ),
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1DB954).withOpacity(0.1),
+                  color: const Color(0xFF1DB954).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -113,8 +112,7 @@ class _PlaceOrderScreenState extends ConsumerState<PlaceOrderScreen> {
         ),
         title: const Text(
           'Place Order',
-          style: TextStyle(
-              color: Colors.black, fontWeight: FontWeight.w600),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
         ),
       ),
       body: SingleChildScrollView(
@@ -140,8 +138,7 @@ class _PlaceOrderScreenState extends ConsumerState<PlaceOrderScreen> {
                             width: 70,
                             height: 70,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                _imagePlaceholder(),
+                            errorBuilder: (_, __, ___) => _imagePlaceholder(),
                           )
                         : _imagePlaceholder(),
                   ),
@@ -189,9 +186,8 @@ class _PlaceOrderScreenState extends ConsumerState<PlaceOrderScreen> {
             Row(
               children: [
                 IconButton(
-                  onPressed: _quantity > 1
-                      ? () => setState(() => _quantity--)
-                      : null,
+                  onPressed:
+                      _quantity > 1 ? () => setState(() => _quantity--) : null,
                   icon: const Icon(Icons.remove_circle_outline),
                   color: const Color(0xFF1DB954),
                   iconSize: 32,
@@ -204,10 +200,9 @@ class _PlaceOrderScreenState extends ConsumerState<PlaceOrderScreen> {
                 ),
                 const SizedBox(width: 16),
                 IconButton(
-                  onPressed:
-                      _quantity < widget.deal.availableQuantity
-                          ? () => setState(() => _quantity++)
-                          : null,
+                  onPressed: _quantity < widget.deal.availableQuantity
+                      ? () => setState(() => _quantity++)
+                      : null,
                   icon: const Icon(Icons.add_circle_outline),
                   color: const Color(0xFF1DB954),
                   iconSize: 32,
@@ -215,8 +210,7 @@ class _PlaceOrderScreenState extends ConsumerState<PlaceOrderScreen> {
                 const Spacer(),
                 Text(
                   '${widget.deal.availableQuantity} available',
-                  style: TextStyle(
-                      color: Colors.grey[600], fontSize: 13),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
                 ),
               ],
             ),
@@ -232,8 +226,7 @@ class _PlaceOrderScreenState extends ConsumerState<PlaceOrderScreen> {
 
             _SummaryRow(
               label: 'Price per item',
-              value:
-                  'ETB ${widget.deal.discountedPrice.toStringAsFixed(0)}',
+              value: 'ETB ${widget.deal.discountedPrice.toStringAsFixed(0)}',
             ),
             _SummaryRow(
               label: 'Quantity',
@@ -253,14 +246,13 @@ class _PlaceOrderScreenState extends ConsumerState<PlaceOrderScreen> {
           ],
         ),
       ),
-
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 8,
               offset: const Offset(0, -2),
             ),

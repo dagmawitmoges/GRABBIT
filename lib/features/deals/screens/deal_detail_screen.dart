@@ -103,9 +103,7 @@ class DealDetailScreen extends ConsumerWidget {
                               color: AppTheme.primary),
                         if (deal.subcityName != null) ...[
                           const SizedBox(width: 8),
-                          _Tag(
-                              label: deal.subcityName!,
-                              color: Colors.blue),
+                          _Tag(label: deal.subcityName!, color: Colors.blue),
                         ],
                       ],
                     ),
