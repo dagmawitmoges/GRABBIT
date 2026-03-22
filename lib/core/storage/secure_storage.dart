@@ -1,33 +1,62 @@
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorage {
-  static const _storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-  );
-
-  static const _accessTokenKey  = 'access_token';
+  static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
 
+  // Web uses SharedPreferences, mobile uses FlutterSecureStorage
   static Future<void> saveTokens({
     required String accessToken,
     required String refreshToken,
   }) async {
-    await Future.wait([
-      _storage.write(key: _accessTokenKey,  value: accessToken),
-      _storage.write(key: _refreshTokenKey, value: refreshToken),
-    ]);
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_accessTokenKey, accessToken);
+      await prefs.setString(_refreshTokenKey, refreshToken);
+    } else {
+      const s = FlutterSecureStorage(
+        aOptions: AndroidOptions(encryptedSharedPreferences: true),
+      );
+      await s.write(key: _accessTokenKey, value: accessToken);
+      await s.write(key: _refreshTokenKey, value: refreshToken);
+    }
   }
 
-  static Future<String?> getAccessToken() =>
-      _storage.read(key: _accessTokenKey);
+  static Future<String?> getAccessToken() async {
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_accessTokenKey);
+    }
+    const s = FlutterSecureStorage(
+      aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    );
+    return s.read(key: _accessTokenKey);
+  }
 
-  static Future<String?> getRefreshToken() =>
-      _storage.read(key: _refreshTokenKey);
+  static Future<String?> getRefreshToken() async {
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_refreshTokenKey);
+    }
+    const s = FlutterSecureStorage(
+      aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    );
+    return s.read(key: _refreshTokenKey);
+  }
 
   static Future<void> clearTokens() async {
-    await Future.wait([
-      _storage.delete(key: _accessTokenKey),
-      _storage.delete(key: _refreshTokenKey),
-    ]);
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_accessTokenKey);
+      await prefs.remove(_refreshTokenKey);
+    } else {
+      const s = FlutterSecureStorage(
+        aOptions: AndroidOptions(encryptedSharedPreferences: true),
+      );
+      await s.delete(key: _accessTokenKey);
+      await s.delete(key: _refreshTokenKey);
+    }
   }
 }
