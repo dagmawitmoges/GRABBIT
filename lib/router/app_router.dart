@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grabbit/features/auth/screens/profile_screen.dart';
 import '../features/auth/screens/login_screen.dart';

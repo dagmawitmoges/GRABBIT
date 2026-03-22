@@ -153,7 +153,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 // Subcity dropdown
                 subcitiesAsync.when(
                   data: (subcities) => DropdownButtonFormField<Subcity>(
-                    value: _selectedSubcity,
+                 initialValue: _selectedSubcity,
                     decoration:
                         _inputDecoration('Subcity', Icons.location_on_outlined),
                     items: subcities

@@ -59,7 +59,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icon: const Icon(Icons.person_outline, color: Colors.black),
             onPressed: () => context.push('/profile'),
           ),
-          
         ],
       ),
       body: RefreshIndicator(
@@ -76,8 +75,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Search deals...',
-                    prefixIcon:
-                        const Icon(Icons.search, color: Colors.grey),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.clear, color: Colors.grey),
@@ -212,8 +210,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ? 1
                           : 0),
                 ),
-                gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
@@ -245,8 +242,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onPressed: () => context.push('/orders'),
         backgroundColor: const Color(0xFF1DB954),
         icon: const Icon(Icons.receipt_long, color: Colors.white),
-        label: const Text('My Orders',
-            style: TextStyle(color: Colors.white)),
+        label: const Text('My Orders', style: TextStyle(color: Colors.white)),
       ),
     );
   }
@@ -266,7 +262,7 @@ class _DealCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -277,8 +273,8 @@ class _DealCard extends StatelessWidget {
           children: [
             // Image
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
               child: deal.images.isNotEmpty
                   ? Image.network(
                       deal.images.first,
@@ -309,10 +305,10 @@ class _DealCard extends StatelessWidget {
 
                   // Discount badge
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1DB954).withOpacity(0.1),
+                      color: const Color(0xFF1DB954).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -370,8 +366,8 @@ class _DealCard extends StatelessWidget {
       height: 120,
       width: double.infinity,
       color: Colors.grey[200],
-      child: const Icon(Icons.storefront_outlined,
-          color: Colors.grey, size: 40),
+      child:
+          const Icon(Icons.storefront_outlined, color: Colors.grey, size: 40),
     );
   }
 }

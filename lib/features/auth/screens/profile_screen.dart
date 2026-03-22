@@ -22,13 +22,12 @@ class ProfileScreen extends ConsumerWidget {
         ),
         title: const Text(
           'Profile',
-          style: TextStyle(
-              color: Colors.black, fontWeight: FontWeight.w600),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
         ),
       ),
       body: user == null
-          ? const Center(child: CircularProgressIndicator(
-              color: Color(0xFF1DB954)))
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF1DB954)))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -68,10 +67,10 @@ class ProfileScreen extends ConsumerWidget {
 
                   // Role badge
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1DB954).withOpacity(0.1),
+                      color: const Color(0xFF1DB954).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -93,7 +92,7 @@ class ProfileScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
+                          color: Colors.black.withValues(alpha: 0.06),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -116,9 +115,7 @@ class ProfileScreen extends ConsumerWidget {
                         _InfoTile(
                           icon: Icons.verified_outlined,
                           label: 'Status',
-                          value: user.isVerified
-                              ? 'Verified'
-                              : 'Not verified',
+                          value: user.isVerified ? 'Verified' : 'Not verified',
                           valueColor: user.isVerified
                               ? const Color(0xFF1DB954)
                               : Colors.red,
@@ -136,7 +133,7 @@ class ProfileScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
+                          color: Colors.black.withValues(alpha: 0.06),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -171,26 +168,22 @@ class ProfileScreen extends ConsumerWidget {
                           context: context,
                           builder: (_) => AlertDialog(
                             title: const Text('Logout'),
-                            content: const Text(
-                                'Are you sure you want to logout?'),
+                            content:
+                                const Text('Are you sure you want to logout?'),
                             actions: [
                               TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(context),
+                                onPressed: () => Navigator.pop(context),
                                 child: const Text('Cancel'),
                               ),
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  ref
-                                      .read(authProvider.notifier)
-                                      .logout();
+                                  ref.read(authProvider.notifier).logout();
                                   context.go('/login');
                                 },
                                 child: const Text(
                                   'Logout',
-                                  style:
-                                      TextStyle(color: Colors.red),
+                                  style: TextStyle(color: Colors.red),
                                 ),
                               ),
                             ],
@@ -218,8 +211,7 @@ class ProfileScreen extends ConsumerWidget {
                   // App version
                   Text(
                     'Grabbit v1.0.0',
-                    style: TextStyle(
-                        color: Colors.grey[400], fontSize: 12),
+                    style: TextStyle(color: Colors.grey[400], fontSize: 12),
                   ),
                 ],
               ),
@@ -244,8 +236,7 @@ class _InfoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
           Icon(icon, color: Colors.grey, size: 22),
@@ -255,8 +246,7 @@ class _InfoTile extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                    color: Colors.grey[500], fontSize: 12),
+                style: TextStyle(color: Colors.grey[500], fontSize: 12),
               ),
               const SizedBox(height: 2),
               Text(
@@ -293,8 +283,8 @@ class _ActionTile extends StatelessWidget {
         label,
         style: const TextStyle(fontWeight: FontWeight.w500),
       ),
-      trailing: const Icon(Icons.arrow_forward_ios,
-          size: 14, color: Colors.grey),
+      trailing:
+          const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
       onTap: onTap,
     );
   }

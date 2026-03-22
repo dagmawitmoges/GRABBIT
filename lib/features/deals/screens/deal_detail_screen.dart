@@ -44,8 +44,8 @@ class DealDetailScreen extends ConsumerWidget {
               leading: IconButton(
                 icon: const CircleAvatar(
                   backgroundColor: Colors.white,
-                  child: Icon(Icons.arrow_back_ios,
-                      color: Colors.black, size: 16),
+                  child:
+                      Icon(Icons.arrow_back_ios, color: Colors.black, size: 16),
                 ),
                 onPressed: () => context.pop(),
               ),
@@ -78,13 +78,12 @@ class DealDetailScreen extends ConsumerWidget {
                     Row(
                       children: [
                         if (deal.categoryName != null)
-                          _Tag(label: deal.categoryName!,
+                          _Tag(
+                              label: deal.categoryName!,
                               color: const Color(0xFF1DB954)),
                         if (deal.subcityName != null) ...[
                           const SizedBox(width: 8),
-                          _Tag(
-                              label: deal.subcityName!,
-                              color: Colors.blue),
+                          _Tag(label: deal.subcityName!, color: Colors.blue),
                         ],
                       ],
                     ),
@@ -182,8 +181,7 @@ class DealDetailScreen extends ConsumerWidget {
                       const SizedBox(height: 8),
                       Text(
                         deal.description!,
-                        style: TextStyle(
-                            color: Colors.grey[700], height: 1.5),
+                        style: TextStyle(color: Colors.grey[700], height: 1.5),
                       ),
                       const SizedBox(height: 20),
                     ],
@@ -200,8 +198,8 @@ class DealDetailScreen extends ConsumerWidget {
 
                     reviewsAsync.when(
                       loading: () => const Center(
-                        child: CircularProgressIndicator(
-                            color: Color(0xFF1DB954)),
+                        child:
+                            CircularProgressIndicator(color: Color(0xFF1DB954)),
                       ),
                       error: (_, __) => const Text(
                         'Could not load reviews',
@@ -236,7 +234,7 @@ class DealDetailScreen extends ConsumerWidget {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 8,
                 offset: const Offset(0, -2),
               ),
@@ -256,8 +254,7 @@ class DealDetailScreen extends ConsumerWidget {
             ),
             child: Text(
               deal.availableQuantity > 0 ? 'Reserve Now' : 'Out of Stock',
-              style: const TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -286,13 +283,13 @@ class _Tag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         label,
-        style: TextStyle(
-            color: color, fontSize: 12, fontWeight: FontWeight.w600),
+        style:
+            TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );
   }

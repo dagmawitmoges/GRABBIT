@@ -15,8 +15,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-        () => ref.read(ordersProvider.notifier).fetchOrders());
+    Future.microtask(() => ref.read(ordersProvider.notifier).fetchOrders());
   }
 
   @override
@@ -34,14 +33,12 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
         ),
         title: const Text(
           'My Orders',
-          style: TextStyle(
-              color: Colors.black, fontWeight: FontWeight.w600),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
         ),
       ),
       body: ordersState.isLoading
           ? const Center(
-              child:
-                  CircularProgressIndicator(color: Color(0xFF1DB954)),
+              child: CircularProgressIndicator(color: Color(0xFF1DB954)),
             )
           : ordersState.error != null
               ? Center(
@@ -54,9 +51,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                       Text(ordersState.error!),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: () => ref
-                            .read(ordersProvider.notifier)
-                            .fetchOrders(),
+                        onPressed: () =>
+                            ref.read(ordersProvider.notifier).fetchOrders(),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1DB954),
                         ),
@@ -77,25 +73,21 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                           const Text(
                             'No orders yet',
                             style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600),
+                                fontSize: 18, fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'Browse deals and place your first order',
-                            style:
-                                TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(color: Colors.grey[600]),
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton(
                             onPressed: () => context.go('/home'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color(0xFF1DB954),
+                              backgroundColor: const Color(0xFF1DB954),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                             child: const Text('Browse Deals'),
@@ -105,9 +97,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                     )
                   : RefreshIndicator(
                       color: const Color(0xFF1DB954),
-                      onRefresh: () => ref
-                          .read(ordersProvider.notifier)
-                          .fetchOrders(),
+                      onRefresh: () =>
+                          ref.read(ordersProvider.notifier).fetchOrders(),
                       child: ListView.builder(
                         padding: const EdgeInsets.all(16),
                         itemCount: ordersState.orders.length,
@@ -116,8 +107,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                           return _OrderCard(
                             order: order,
                             onCancel: () async {
-                              final confirm =
-                                  await showDialog<bool>(
+                              final confirm = await showDialog<bool>(
                                 context: context,
                                 builder: (_) => AlertDialog(
                                   title: const Text('Cancel Order'),
@@ -126,17 +116,14 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                                   actions: [
                                     TextButton(
                                       onPressed: () =>
-                                          Navigator.pop(
-                                              context, false),
+                                          Navigator.pop(context, false),
                                       child: const Text('No'),
                                     ),
                                     TextButton(
                                       onPressed: () =>
-                                          Navigator.pop(
-                                              context, true),
+                                          Navigator.pop(context, true),
                                       child: const Text('Yes',
-                                          style: TextStyle(
-                                              color: Colors.red)),
+                                          style: TextStyle(color: Colors.red)),
                                     ),
                                   ],
                                 ),
@@ -180,7 +167,7 @@ class _OrderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -202,11 +189,10 @@ class _OrderCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color:
-                      _statusColor(order.status).withOpacity(0.1),
+                  color: _statusColor(order.status).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -225,17 +211,15 @@ class _OrderCard extends StatelessWidget {
           // Claim code
           if (order.claimCode != null)
             Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFF1DB954).withOpacity(0.1),
+                color: const Color(0xFF1DB954).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.qr_code,
-                      size: 16, color: Color(0xFF1DB954)),
+                  const Icon(Icons.qr_code, size: 16, color: Color(0xFF1DB954)),
                   const SizedBox(width: 6),
                   Text(
                     'Claim Code: ${order.claimCode}',
@@ -257,8 +241,7 @@ class _OrderCard extends StatelessWidget {
             children: [
               Text(
                 'Qty: ${order.quantity}',
-                style:
-                    TextStyle(color: Colors.grey[600], fontSize: 13),
+                style: TextStyle(color: Colors.grey[600], fontSize: 13),
               ),
               if (order.discountedPrice != null) ...[
                 const SizedBox(width: 16),
