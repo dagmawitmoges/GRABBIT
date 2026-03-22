@@ -6,6 +6,8 @@ import '../features/auth/screens/otp_screen.dart';
 import '../features/deals/model/deal_model.dart';
 import '../features/deals/screens/home_screen.dart';
 import '../features/deals/screens/deal_detail_screen.dart';
+import '../features/orders/screens/orders_screen.dart';
+import '../features/orders/screens/place_order_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/login',
@@ -38,17 +40,13 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/orders',
-      builder: (_, __) => const Scaffold(
-        body: Center(child: Text('Orders — Module 4')),
-      ),
+      builder: (_, __) => const OrdersScreen(),
     ),
     GoRoute(
       path: '/orders/new',
       builder: (context, state) {
         final deal = state.extra as Deal;
-        return Scaffold(
-          body: Center(child: Text('Place Order — Module 4\n${deal.title}')),
-        );
+        return PlaceOrderScreen(deal: deal);
       },
     ),
     GoRoute(
