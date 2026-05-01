@@ -8,6 +8,19 @@ import '../provider/deals_provider.dart';
 class DealDetailScreen extends ConsumerWidget {
   final String dealId;
   const DealDetailScreen({super.key, required this.dealId});
+String _getDetailImage(deal) {
+  if (deal.images.isNotEmpty) {
+    return deal.images.first;
+  }
+  switch (deal.title) {
+    case 'Grilled Meat Platter':
+      return 'lib/assets/grilled.jpg';
+    case 'Vegan Pastry Box':
+      return 'lib/assets/veganpastry.jpg';
+    default:
+      return 'lib/assets/juicecombo.jpg';
+  }
+}
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -60,25 +73,23 @@ class DealDetailScreen extends ConsumerWidget {
                       color: AppTheme.textDark, size: 18),
                 ),
               ),
-              flexibleSpace: FlexibleSpaceBar(
-                background: deal.images.isNotEmpty
-                    ? Image.network(
-                        deal.images.first,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: AppTheme.divider,
-                          child: const Icon(
-                              Icons.storefront_outlined,
-                              size: 80,
-                              color: AppTheme.textLight),
-                        ),
-                      )
-                    : Container(
-                        color: AppTheme.divider,
-                        child: const Icon(Icons.storefront_outlined,
-                            size: 80, color: AppTheme.textLight),
-                      ),
-              ),
+             flexibleSpace: FlexibleSpaceBar(
+  background: _getDetailImage(deal).startsWith('http')
+      ? Image.network(
+          _getDetailImage(deal),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Container(
+            color: AppTheme.divider,
+            child: const Icon(Icons.storefront_outlined,
+                size: 80, color: AppTheme.textLight),
+          ),
+        )
+      : Image.asset(
+          _getDetailImage(deal),
+          fit: BoxFit.cover,
+        ),
+),
+
             ),
 
             SliverToBoxAdapter(

@@ -41,19 +41,21 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       );
       return;
     }
-    final email = await ref.read(authProvider.notifier).register(
-          firstName: _firstNameController.text.trim(),
-          lastName: _lastNameController.text.trim(),
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-          subcityId: _selectedSubcity!.id,
-          phone: _phoneController.text.trim().isEmpty
-              ? null
-              : _phoneController.text.trim(),
-        );
-    if (email != null && mounted) {
-      context.push('/otp', extra: email);
-    }
+  final email = await ref.read(authProvider.notifier).register(
+  firstName: _firstNameController.text.trim(),
+  lastName: _lastNameController.text.trim(),
+  email: _emailController.text.trim(),
+  password: _passwordController.text.trim(),
+  subcityId: _selectedSubcity!.id,
+  phone: _phoneController.text.trim(),
+);
+
+if (email != null && mounted) {
+  context.push('/otp', extra: email);
+}
+
+
+
   }
 
   @override
@@ -90,7 +92,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 const Text(
                   'Join Grabbit and start saving today',
                   style: TextStyle(
-                      fontSize: 15, color: AppTheme.textMedium),
+                    fontSize: 15,
+                    color: AppTheme.textMedium,
+                  ),
                 ),
                 const SizedBox(height: 32),
 
@@ -107,9 +111,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     prefixIcon: Icon(Icons.person_outline,
                         color: AppTheme.textLight),
                   ),
-                  validator: (val) => val == null || val.isEmpty
-                      ? 'First name is required'
-                      : null,
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'First name is required' : null,
                 ),
                 const SizedBox(height: 16),
 
@@ -121,9 +124,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     prefixIcon: Icon(Icons.person_outline,
                         color: AppTheme.textLight),
                   ),
-                  validator: (val) => val == null || val.isEmpty
-                      ? 'Last name is required'
-                      : null,
+                  validator: (val) =>
+                      val == null || val.isEmpty ? 'Last name is required' : null,
                 ),
                 const SizedBox(height: 16),
 
@@ -158,10 +160,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Subcity
+                // Subcity dropdown
                 subcitiesAsync.when(
                   data: (subcities) => DropdownButtonFormField<Subcity>(
-                    initialValue: _selectedSubcity,
+                    value: _selectedSubcity,
                     decoration: const InputDecoration(
                       labelText: 'Subcity',
                       prefixIcon: Icon(Icons.location_on_outlined,
@@ -179,11 +181,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ? 'Please select your subcity'
                         : null,
                   ),
-                  loading: () => const LinearProgressIndicator(
-                      color: AppTheme.primary),
-                  error: (_, __) => const Text(
-                    'Failed to load subcities.',
-                    style: TextStyle(color: Colors.red),
+                  loading: () =>
+                      const LinearProgressIndicator(color: AppTheme.primary),
+                  error: (err, _) => Text(
+                    'Failed to load subcities: $err',
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -203,8 +205,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             : Icons.visibility_outlined,
                         color: AppTheme.textLight,
                       ),
-                      onPressed: () => setState(
-                          () => _obscurePassword = !_obscurePassword),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
                   validator: (val) {
@@ -266,3 +268,4 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
   }
 }
+

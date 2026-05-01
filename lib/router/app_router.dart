@@ -26,8 +26,8 @@ GoRouter createRouter(WidgetRef ref) {
       final isGoingToAuth = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register' ||
           state.matchedLocation == '/otp';
-      final isGoingToProtected = _protectedRoutes
-          .any((r) => state.matchedLocation.startsWith(r));
+      final isGoingToProtected =
+          _protectedRoutes.any((r) => state.matchedLocation.startsWith(r));
 
       if (!isLoggedIn && isGoingToProtected) return '/login';
       if (isLoggedIn && isGoingToAuth) return '/home';
@@ -77,10 +77,7 @@ GoRouter createRouter(WidgetRef ref) {
             builder: (context, state) {
               final orderId = state.pathParameters['id']!;
               final dealTitle = state.extra as String;
-              return ReviewScreen(
-                orderId: orderId,
-                dealTitle: dealTitle,
-              );
+              return ReviewScreen(orderId: orderId, dealTitle: dealTitle);
             },
           ),
         ],

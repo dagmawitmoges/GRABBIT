@@ -30,19 +30,19 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     super.dispose();
   }
 
-  String get _otpCode => _controllers.map((c) => c.text).join();
+  String get _otpCode => _controllers.map((c) => c.text.trim()).join();
 
   Future<void> _onVerify() async {
     if (_otpCode.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please enter the full 6-digit code')),
+        const SnackBar(content: Text('Please enter the full 6-digit code')),
       );
       return;
     }
-    final success = await ref
-        .read(authProvider.notifier)
-        .verifyOtp(widget.email, _otpCode);
+    final success = await ref.read(authProvider.notifier).verifyOtp(
+          widget.email,
+          _otpCode,
+        );
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -54,7 +54,27 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     }
   }
 
+  Future<void> _onResend() async {
+    final success = await ref.read(authProvider.notifier).resendOtp(widget.email);
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('OTP resent successfully!'),
+          backgroundColor: AppTheme.primary,
+        ),
+      );
+    }
+  }
+
   void _onDigitChanged(String value, int index) {
+    // Handle paste of full OTP
+    if (value.length > 1 && index == 0) {
+      for (int i = 0; i < value.length && i < 6; i++) {
+        _controllers[i].text = value[i];
+      }
+      _focusNodes[5].requestFocus();
+      return;
+    }
     if (value.length == 1 && index < 5) {
       _focusNodes[index + 1].requestFocus();
     } else if (value.isEmpty && index > 0) {
@@ -93,7 +113,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               Text(
                 'Enter the 6-digit code sent to\n${widget.email}',
                 style: const TextStyle(
-                    fontSize: 15, color: AppTheme.textMedium),
+                  fontSize: 15,
+                  color: AppTheme.textMedium,
+                ),
               ),
               const SizedBox(height: 40),
 
@@ -134,8 +156,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                               color: AppTheme.primary, width: 2),
                         ),
                       ),
-                      onChanged: (val) =>
-                          _onDigitChanged(val, index),
+                      onChanged: (val) => _onDigitChanged(val, index),
                     ),
                   );
                 }),
@@ -158,6 +179,17 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                           ),
                         )
                       : const Text('Verify Email'),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              Center(
+                child: TextButton(
+                  onPressed: authState.isLoading ? null : _onResend,
+                  child: const Text(
+                    'Resend OTP',
+                    style: TextStyle(color: AppTheme.primary),
+                  ),
                 ),
               ),
             ],

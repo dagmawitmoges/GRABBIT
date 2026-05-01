@@ -41,3 +41,6 @@ flutter:
   assets:
     - .env.development
     - .env.production
+    - lib/assets/grilled.jpg
+    - lib/assets/veganpastry.jpg
+    - lib/assets/juicecombo.jpg

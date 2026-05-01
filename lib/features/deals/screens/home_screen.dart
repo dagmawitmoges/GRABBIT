@@ -308,6 +308,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 class _DealCard extends StatelessWidget {
   final Deal deal;
   const _DealCard({required this.deal});
+String _getImage(Deal deal) {
+  if (deal.images.isNotEmpty) {
+    return deal.images.first; // backend image if available
+  }
+  switch (deal.title) {
+    case 'Grilled Meat Platter':
+      return 'lib/assets/grilled.jpg';
+    case 'Vegan Pastry Box':
+      return 'lib/assets/veganpastry.jpg';
+    default:
+      return 'lib/assets/juicecombo.jpg'; // optional fallback
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -330,20 +343,26 @@ class _DealCard extends StatelessWidget {
           children: [
             // Image
             ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                bottomLeft: Radius.circular(20),
-              ),
-              child: deal.images.isNotEmpty
-                  ? Image.network(
-                      deal.images.first,
-                      width: 110,
-                      height: 110,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _placeholder(),
-                    )
-                  : _placeholder(),
-            ),
+  borderRadius: const BorderRadius.only(
+    topLeft: Radius.circular(20),
+    bottomLeft: Radius.circular(20),
+  ),
+  child: _getImage(deal).startsWith('http')
+      ? Image.network(
+          _getImage(deal),
+          width: 110,
+          height: 110,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _placeholder(),
+        )
+      : Image.asset(
+          _getImage(deal),
+          width: 110,
+          height: 110,
+          fit: BoxFit.cover,
+        ),
+),
+
 
             // Content
             Expanded(

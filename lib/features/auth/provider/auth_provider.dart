@@ -7,12 +7,15 @@ import '../model/auth_models.dart';
 import '../model/subcity_model.dart';
 import '../service/auth_service.dart';
 
+/// Provides a single instance of AuthService
 final authServiceProvider = Provider<AuthService>((ref) => AuthService());
 
+/// Fetches subcities using AuthService
 final subcitiesProvider = FutureProvider<List<Subcity>>((ref) async {
   return ref.read(authServiceProvider).getSubcities();
 });
 
+/// Holds authentication state
 class AuthState {
   final AuthUser? user;
   final bool isLoading;
@@ -45,6 +48,7 @@ class AuthState {
   }
 }
 
+/// Manages authentication logic
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthService _authService;
 
@@ -59,10 +63,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return;
     }
     try {
-      final response =
-          await DioClient.instance.get(ApiConstants.me);
-      final user = AuthUser.fromJson(
-          response.data as Map<String, dynamic>);
+      final response = await DioClient.instance.get(ApiConstants.me);
+      final user = AuthUser.fromJson(response.data as Map<String, dynamic>);
       state = state.copyWith(user: user, isInitialized: true);
     } on DioException catch (_) {
       await SecureStorage.clearTokens();
@@ -73,18 +75,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<bool> login(String email, String password) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final response = await _authService.login(
-        LoginRequest(email: email, password: password),
-      );
+      final response = await _authService.login(LoginRequest(email: email, password: password));
       await SecureStorage.saveTokens(
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,
       );
-      state = state.copyWith(
-        user: response.user,
-        isLoading: false,
-        isInitialized: true,
-      );
+      state = state.copyWith(user: response.user, isLoading: false, isInitialized: true);
       return true;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -123,9 +119,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<bool> verifyOtp(String email, String otpCode) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      await _authService.verifyOtp(
-        OtpVerifyRequest(email: email, otpCode: otpCode),
-      );
+      await _authService.verifyOtp(OtpVerifyRequest(email: email, otpCode: otpCode));
+      state = state.copyWith(isLoading: false);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> resendOtp(String email) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      await _authService.resendOtp(email);
       state = state.copyWith(isLoading: false);
       return true;
     } catch (e) {
@@ -144,6 +150,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
+/// Exposes AuthNotifier as a Riverpod provider
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>(
   (ref) => AuthNotifier(ref.watch(authServiceProvider)),
 );
