@@ -59,12 +59,18 @@ class OrdersNotifier extends StateNotifier<OrdersState> {
   Future<Order?> placeOrder({
     required String dealId,
     int quantity = 1,
+    String preferredMethod = 'pickup',
+    double deliveryFee = 0,
+    required String paymentMethod,
   }) async {
     state = state.copyWith(isPlacing: true, clearError: true);
     try {
       final order = await _service.placeOrder(
         dealId: dealId,
         quantity: quantity,
+        preferredMethod: preferredMethod,
+        deliveryFee: deliveryFee,
+        paymentMethod: paymentMethod,
       );
       state = state.copyWith(
         isPlacing: false,

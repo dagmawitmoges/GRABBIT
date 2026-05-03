@@ -15,6 +15,8 @@ class DealsState {
   final bool hasMore;
   final int currentPage;
   final String searchQuery;
+  /// When set, only deals in this area are listed (matches `deals.location_id`).
+  final String? filterLocationId;
 
   const DealsState({
     this.deals = const [],
@@ -23,6 +25,7 @@ class DealsState {
     this.hasMore = true,
     this.currentPage = 1,
     this.searchQuery = '',
+    this.filterLocationId,
   });
 
   DealsState copyWith({
@@ -32,6 +35,7 @@ class DealsState {
     bool? hasMore,
     int? currentPage,
     String? searchQuery,
+    String? filterLocationId,
     bool clearError = false,
   }) {
     return DealsState(
@@ -41,6 +45,7 @@ class DealsState {
       hasMore: hasMore ?? this.hasMore,
       currentPage: currentPage ?? this.currentPage,
       searchQuery: searchQuery ?? this.searchQuery,
+      filterLocationId: filterLocationId ?? this.filterLocationId,
     );
   }
 }
@@ -53,10 +58,14 @@ class DealsNotifier extends StateNotifier<DealsState> {
   }
 
   Future<void> fetchDeals({bool refresh = false}) async {
-    if (state.isLoading) return;
+    // Don't skip refresh just because a pagination request is in flight.
+    if (state.isLoading && !refresh) return;
 
     if (refresh) {
-      state = const DealsState();
+      state = DealsState(
+        searchQuery: state.searchQuery,
+        filterLocationId: state.filterLocationId,
+      );
     }
 
     state = state.copyWith(isLoading: true, clearError: true);
@@ -65,6 +74,7 @@ class DealsNotifier extends StateNotifier<DealsState> {
       final deals = await _service.getDeals(
         page: state.currentPage,
         search: state.searchQuery.isEmpty ? null : state.searchQuery,
+        locationId: state.filterLocationId,
       );
 
       state = state.copyWith(
@@ -79,8 +89,19 @@ class DealsNotifier extends StateNotifier<DealsState> {
   }
 
   Future<void> search(String query) async {
-    state = DealsState(searchQuery: query);
+    state = DealsState(
+      searchQuery: query,
+      filterLocationId: state.filterLocationId,
+    );
     await fetchDeals();
+  }
+
+  Future<void> setLocationFilter(String? locationId) {
+    state = DealsState(
+      searchQuery: state.searchQuery,
+      filterLocationId: locationId,
+    );
+    return fetchDeals(refresh: true);
   }
 
   Future<void> refresh() async {

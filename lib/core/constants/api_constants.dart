@@ -10,7 +10,7 @@ class ApiConstants {
   static const String me           = '/api/me';
 
   // Public
-  static const String subcities    = '/api/subcities';
+  static const String locations = '/api/locations';
   static const String deals        = '/api/deals';
   static const String categories   = '/api/admin/categories';
   static const String appConfig    = '/api/admin/app-config';

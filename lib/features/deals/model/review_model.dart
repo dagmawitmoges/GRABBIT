@@ -13,11 +13,14 @@ class Review {
     required this.createdAt,
   });
 
-  factory Review.fromJson(Map<String, dynamic> json) => Review(
-        id: json['id'] as String,
-        rating: json['rating'] as int,
-        comment: json['comment'] as String?,
-        reviewerName: json['reviewer_name'] as String?,
-        createdAt: json['created_at'] as String,
-      );
+  factory Review.fromJson(Map<String, dynamic> json) {
+    final r = json['rating'];
+    return Review(
+      id: json['id'] as String,
+      rating: r is int ? r : int.tryParse('$r') ?? 0,
+      comment: json['comment'] as String?,
+      reviewerName: json['reviewer_name'] as String?,
+      createdAt: json['created_at'] as String,
+    );
+  }
 }

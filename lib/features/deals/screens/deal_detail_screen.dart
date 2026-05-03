@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_theme.dart';
 import '../model/review_model.dart';
 import '../provider/deals_provider.dart';
+import '../../../features/favorites/provider/favorites_provider.dart';
 
 class DealDetailScreen extends ConsumerWidget {
   final String dealId;
@@ -55,6 +56,29 @@ String _getDetailImage(deal) {
               expandedHeight: 300,
               pinned: true,
               backgroundColor: AppTheme.primary,
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    ref.watch(favoriteDealIdsProvider).contains(deal.id)
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
+                    color: Colors.white,
+                  ),
+                  onPressed: () async {
+                    try {
+                      await ref
+                          .read(favoriteDealIdsProvider.notifier)
+                          .toggle(deal.id);
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('$e')),
+                        );
+                      }
+                    }
+                  },
+                ),
+              ],
               leading: GestureDetector(
                 onTap: () => context.pop(),
                 child: Container(
@@ -272,6 +296,21 @@ String _getDetailImage(deal) {
                                   .toList(),
                             ),
                     ),
+
+                    if (deal.vendorUserId != null &&
+                        deal.vendorUserId!.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          onPressed: () => context.push(
+                            '/vendor/${deal.vendorUserId}/reviews',
+                          ),
+                          icon: const Icon(Icons.storefront_outlined, size: 20),
+                          label: const Text('All reviews for this business'),
+                        ),
+                      ),
+                    ],
 
                     const SizedBox(height: 100),
                   ],

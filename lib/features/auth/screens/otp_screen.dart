@@ -1,26 +1,57 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/config/env.dart';
 import '../../../core/constants/app_theme.dart';
 import '../../../shared/widgets/error_banner.dart';
 import '../provider/auth_provider.dart';
+import '../widgets/grabbit_logo_mark.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
-  final String email;
-  const OtpScreen({super.key, required this.email});
+  /// Phone (Supabase) or email (legacy). If null, uses profile from session.
+  final String? recipientOverride;
+
+  const OtpScreen({super.key, this.recipientOverride});
 
   @override
   ConsumerState<OtpScreen> createState() => _OtpScreenState();
 }
 
 class _OtpScreenState extends ConsumerState<OtpScreen> {
+  static const int _resendCooldownSeconds = 60;
+
   final List<TextEditingController> _controllers =
       List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes =
-      List.generate(6, (_) => FocusNode());
+  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+
+  Timer? _resendCooldownTimer;
+  int _resendSecondsLeft = _resendCooldownSeconds;
+
+  @override
+  void initState() {
+    super.initState();
+    _startResendCooldown();
+  }
+
+  void _startResendCooldown() {
+    _resendCooldownTimer?.cancel();
+    setState(() => _resendSecondsLeft = _resendCooldownSeconds);
+    _resendCooldownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      if (_resendSecondsLeft <= 1) {
+        _resendCooldownTimer?.cancel();
+        setState(() => _resendSecondsLeft = 0);
+      } else {
+        setState(() => _resendSecondsLeft--);
+      }
+    });
+  }
 
   @override
   void dispose() {
+    _resendCooldownTimer?.cancel();
     for (final c in _controllers) {
       c.dispose();
     }
@@ -32,21 +63,40 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
   String get _otpCode => _controllers.map((c) => c.text.trim()).join();
 
+  String _recipient() {
+    final o = widget.recipientOverride;
+    if (o != null && o.isNotEmpty) return o;
+    final u = ref.read(authProvider).user;
+    if (u == null) return '';
+    if (Env.hasSupabase) return u.phone ?? '';
+    return u.email;
+  }
+
   Future<void> _onVerify() async {
     if (_otpCode.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the full 6-digit code')),
+        const SnackBar(content: Text('Enter the full 6-digit code')),
       );
       return;
     }
-    final success = await ref.read(authProvider.notifier).verifyOtp(
-          widget.email,
-          _otpCode,
-        );
-    if (success && mounted) {
+    final id = _recipient();
+    if (id.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Account verified! Please sign in.'),
+        const SnackBar(content: Text('Missing phone/email. Go back and sign in.')),
+      );
+      return;
+    }
+
+    final success =
+        await ref.read(authProvider.notifier).verifyOtp(id, _otpCode);
+    if (!success || !mounted) return;
+
+    if (Env.hasSupabase) {
+      context.go('/home');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Verified! Sign in to continue.'),
           backgroundColor: AppTheme.primary,
         ),
       );
@@ -55,11 +105,19 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   }
 
   Future<void> _onResend() async {
-    final success = await ref.read(authProvider.notifier).resendOtp(widget.email);
+    if (_resendSecondsLeft > 0) return;
+    final id = _recipient();
+    if (id.isEmpty) return;
+    final success = await ref.read(authProvider.notifier).resendOtp(id);
     if (success && mounted) {
+      _startResendCooldown();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('OTP resent successfully!'),
+        SnackBar(
+          content: Text(
+            Env.hasSupabase
+                ? 'Code sent again by SMS.'
+                : 'OTP resent.',
+          ),
           backgroundColor: AppTheme.primary,
         ),
       );
@@ -67,7 +125,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   }
 
   void _onDigitChanged(String value, int index) {
-    // Handle paste of full OTP
     if (value.length > 1 && index == 0) {
       for (int i = 0; i < value.length && i < 6; i++) {
         _controllers[i].text = value[i];
@@ -85,73 +142,75 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final recipient = _recipient();
+    final isPhone = Env.hasSupabase;
 
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
           onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 26),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-              const Text(
-                'Verify Email',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.textDark,
-                ),
-              ),
-              const SizedBox(height: 8),
+              const Center(child: GrabbitLogoSmall(size: 52)),
+              const SizedBox(height: 24),
               Text(
-                'Enter the 6-digit code sent to\n${widget.email}',
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: AppTheme.textMedium,
-                ),
+                isPhone ? 'Verify your phone' : 'Verify your email',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textDark,
+                    ),
               ),
-              const SizedBox(height: 40),
-
+              const SizedBox(height: 10),
+              Text(
+                isPhone
+                    ? 'Enter the 6-digit code we sent by SMS to\n$recipient'
+                    : 'Enter the code sent to\n$recipient',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppTheme.textMedium,
+                      height: 1.45,
+                    ),
+              ),
+              const SizedBox(height: 32),
               if (authState.error != null) ...[
                 ErrorBanner(message: authState.error!),
                 const SizedBox(height: 16),
               ],
-
-              // OTP boxes
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(6, (index) {
                   return SizedBox(
-                    width: 50,
-                    height: 60,
+                    width: 48,
+                    height: 58,
                     child: TextFormField(
                       controller: _controllers[index],
                       focusNode: _focusNodes[index],
                       keyboardType: TextInputType.number,
                       maxLength: 1,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textDark,
-                      ),
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textDark,
+                          ),
                       decoration: InputDecoration(
                         counterText: '',
                         filled: true,
                         fillColor: Colors.white,
+                        contentPadding: EdgeInsets.zero,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: AppTheme.fieldBorder),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(16),
                           borderSide: const BorderSide(
                               color: AppTheme.primary, width: 2),
                         ),
@@ -161,12 +220,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                   );
                 }),
               ),
-
-              const SizedBox(height: 40),
-
+              const SizedBox(height: 36),
               SizedBox(
                 width: double.infinity,
-                height: 56,
                 child: ElevatedButton(
                   onPressed: authState.isLoading ? null : _onVerify,
                   child: authState.isLoading
@@ -178,17 +234,27 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                             strokeWidth: 2,
                           ),
                         )
-                      : const Text('Verify Email'),
+                      : Text(isPhone ? 'Verify & continue' : 'Verify'),
                 ),
               ),
-              const SizedBox(height: 16),
-
+              const SizedBox(height: 12),
               Center(
                 child: TextButton(
-                  onPressed: authState.isLoading ? null : _onResend,
-                  child: const Text(
-                    'Resend OTP',
-                    style: TextStyle(color: AppTheme.primary),
+                  onPressed: (authState.isLoading || _resendSecondsLeft > 0)
+                      ? null
+                      : _onResend,
+                  child: Text(
+                    _resendSecondsLeft > 0
+                        ? (isPhone
+                            ? 'Resend SMS in ${_resendSecondsLeft}s'
+                            : 'Resend code in ${_resendSecondsLeft}s')
+                        : (isPhone ? 'Resend SMS code' : 'Resend code'),
+                    style: TextStyle(
+                      color: (_resendSecondsLeft > 0 || authState.isLoading)
+                          ? AppTheme.textLight
+                          : AppTheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),

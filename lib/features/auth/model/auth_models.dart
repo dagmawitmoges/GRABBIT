@@ -5,7 +5,7 @@ class RegisterRequest {
   final String lastName;
   final String email;
   final String password;
-  final String subcityId;
+  final String locationId;
   final String? phone;
 
   RegisterRequest({
@@ -13,7 +13,7 @@ class RegisterRequest {
     required this.lastName,
     required this.email,
     required this.password,
-    required this.subcityId,
+    required this.locationId,
     this.phone,
   });
 
@@ -22,7 +22,7 @@ class RegisterRequest {
         'last_name': lastName,
         'email': email,
         'password': password,
-        'subcity_id': subcityId,
+        'location_id': locationId,
         if (phone != null && phone!.isNotEmpty) 'phone': phone,
       };
 }
@@ -94,6 +94,26 @@ class AuthUser {
         role: json['role'] as String,
         isVerified: json['is_verified'] as bool,
       );
+
+  /// Supabase `profiles` row (and PostgREST `full_name` generated column when present).
+  factory AuthUser.fromProfile(Map<String, dynamic> json) {
+    final fn = json['first_name'] as String? ?? '';
+    final ln = json['last_name'] as String? ?? '';
+    final generated = json['full_name'] as String?;
+    final full = (generated != null && generated.trim().isNotEmpty)
+        ? generated.trim()
+        : '$fn $ln'.trim();
+    final roleRaw = json['role'];
+    final role = roleRaw is String ? roleRaw : '$roleRaw';
+    return AuthUser(
+      id: '${json['id']}',
+      fullName: full.isEmpty ? 'User' : full,
+      email: json['email'] as String? ?? '',
+      phone: json['phone'] as String?,
+      role: role,
+      isVerified: json['is_verified'] as bool? ?? false,
+    );
+  }
 }
 
 class LoginResponse {

@@ -12,6 +12,8 @@ class Deal {
   final String? location;
   final bool isActive;
   final double? averageRating;
+  /// Vendor / business owner (`vendor_profiles.user_id`) when set on `deals`.
+  final String? vendorUserId;
 
   Deal({
     required this.id,
@@ -27,6 +29,7 @@ class Deal {
     this.location,
     required this.isActive,
     this.averageRating,
+    this.vendorUserId,
   });
 
   factory Deal.fromJson(Map<String, dynamic> json) {
@@ -45,6 +48,13 @@ class Deal {
       return double.tryParse(raw.toString()) ?? 0.0;
     }
 
+    int parseQuantity(dynamic raw) {
+      if (raw == null) return 0;
+      if (raw is int) return raw;
+      if (raw is num) return raw.round();
+      return int.tryParse(raw.toString()) ?? 0;
+    }
+
     return Deal(
       id: json['id'] as String,
       title: json['title'] as String,
@@ -53,11 +63,13 @@ class Deal {
       discountedPrice: parsePrice(
         json['discounted_price'] ?? json['discount_price'],
       ),
-      availableQuantity: (json['available_quantity'] ??
-              json['quantity_available'] ??
-              json['total_quantity'] ??
-              json['quantity'] ??
-              0) as int,
+      availableQuantity: parseQuantity(
+        json['quantity_remaining'] ??
+            json['available_quantity'] ??
+            json['quantity_available'] ??
+            json['total_quantity'] ??
+            json['quantity'],
+      ),
       expiryTime: (json['expiry_time'] ?? json['expiry_date']) as String?,
       images: parseImages(json['images']),
       categoryName: json['category_name'] as String?,
@@ -67,6 +79,7 @@ class Deal {
       averageRating: json['average_rating'] != null
           ? double.tryParse(json['average_rating'].toString())
           : null,
+      vendorUserId: json['vendor_user_id']?.toString(),
     );
   }
 

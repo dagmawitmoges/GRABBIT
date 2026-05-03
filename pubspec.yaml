@@ -26,10 +26,14 @@ dependencies:
   # Environment config
   flutter_dotenv: ^5.1.0
 
+  # Supabase (subcities + future auth/data)
+  supabase_flutter: ^2.8.4
+
   # UI
   cupertino_icons: ^1.0.8
   cached_network_image: ^3.3.1
   shared_preferences: ^2.5.4
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -41,6 +45,9 @@ flutter:
   assets:
     - .env.development
     - .env.production
+    - lib/assets/grabbit_logo.png
     - lib/assets/grilled.jpg
     - lib/assets/veganpastry.jpg
     - lib/assets/juicecombo.jpg
+    - lib/assets/welcome_hero_bag.png
+    - lib/assets/welcome_hero_kitchen.png

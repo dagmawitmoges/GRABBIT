@@ -215,7 +215,7 @@ class ProfileScreen extends ConsumerWidget {
                                             .read(authProvider
                                                 .notifier)
                                             .logout();
-                                        context.go('/login');
+                                        context.go('/welcome');
                                       },
                                       child: const Text(
                                         'Logout',
@@ -262,7 +262,8 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ],
             ),
-bottomNavigationBar: const BottomNav(currentIndex: 0),    );
+      bottomNavigationBar: const BottomNav(currentIndex: 3),
+    );
   }
 }
 

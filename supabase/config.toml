@@ -1,0 +1,12 @@
+# Replace after linking: supabase link --project-ref <your-ref>
+project_id = "YOUR_PROJECT_REF"
+
+[api]
+enabled = true
+
+# JWT is verified at the gateway; functions also call auth.getUser().
+[functions.send-phone-otp]
+verify_jwt = true
+
+[functions.verify-phone-otp]
+verify_jwt = true

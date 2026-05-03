@@ -1,18 +1,38 @@
 import 'package:dio/dio.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/config/env.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../../core/network/dio_client.dart';
 import '../model/auth_models.dart';
-import '../model/subcity_model.dart';
+import '../model/location_model.dart';
 
 class AuthService {
   final Dio _dio = DioClient.instance;
 
-  /// Fetch all subcities from the backend
-  Future<List<Subcity>> getSubcities() async {
+  /// Fetch all locations from Supabase (preferred) or legacy REST API.
+  Future<List<Location>> getLocations() async {
+    if (Env.hasSupabase) {
+      try {
+        final rows = await Supabase.instance.client
+            .from('locations')
+            .select()
+            .order('sort_order', ascending: true);
+        final list = rows as List<dynamic>;
+        return list
+            .map((e) => Location.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList();
+      } on PostgrestException catch (e) {
+        throw e.message;
+      } catch (e) {
+        throw 'Could not load locations: $e';
+      }
+    }
     try {
-      final response = await _dio.get(ApiConstants.subcities);
+      final response = await _dio.get(ApiConstants.locations);
       final List data = response.data as List;
-      return data.map((e) => Subcity.fromJson(e as Map<String, dynamic>)).toList();
+      return data
+          .map((e) => Location.fromJson(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw _handleError(e);
     }
